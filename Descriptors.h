@@ -18,6 +18,25 @@ void GetRect(const Point2f& point, RectInfo& rect, const int width, const int he
 	rect.height = descInfo.height;
 }
 
+cv::Mat windowedMatchingMask( const std::vector<cv::KeyPoint>& keypoints1, const std::vector<cv::KeyPoint>& keypoints2,
+                          float maxDeltaX, float maxDeltaY )
+{
+  if( keypoints1.empty() || keypoints2.empty() )
+    return cv::Mat();
+
+  int n1 = (int)keypoints1.size(), n2 = (int)keypoints2.size();
+  cv::Mat mask( n1, n2, CV_8UC1 );
+  for( int i = 0; i < n1; i++ )
+    {
+      for( int j = 0; j < n2; j++ )
+        {
+          cv::Point2f diff = keypoints2[j].pt - keypoints1[i].pt;
+          mask.at<uchar>(i, j) = std::abs(diff.x) < maxDeltaX && std::abs(diff.y) < maxDeltaY;
+        }
+    }
+  return mask;
+}
+
 // compute integral histograms for the whole image
 void BuildDescMat(const Mat& xComp, const Mat& yComp, float* desc, const DescInfo& descInfo)
 {
@@ -76,7 +95,6 @@ void GetDesc(const DescMat* descMat, RectInfo& rect, DescInfo descInfo, std::vec
 {
 	int dim = descInfo.dim;
 	int nBins = descInfo.nBins;
-	int height = descMat->height;
 	int width = descMat->width;
 
 	int xStride = rect.width/descInfo.nxCells;

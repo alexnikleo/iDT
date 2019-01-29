@@ -47,8 +47,8 @@ int main(int argc, char** argv)
 	if(show_track == 1)
 		namedWindow("DenseTrackStab", 0);
 
-	SurfFeatureDetector detector_surf(200);
-	SurfDescriptorExtractor extractor_surf(true, true);
+	FeatureDetector detector_surf = *cv::ORB::create();
+	DescriptorExtractor extractor_surf = *cv::ORB::create();
 
 	std::vector<Point2f> prev_pts_flow, pts_flow;
 	std::vector<Point2f> prev_pts_surf, pts_surf;
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 	int init_counter = 0; // indicate when to detect new feature points
 	while(true) {
 		Mat frame;
-		int i, j, c;
+		int i, c;
 
 		// get a new frame
 		capture >> frame;
